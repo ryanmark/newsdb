@@ -7,6 +7,7 @@ class ProductMetaInline(admin.TabularInline):
 
 
 class ProductAdmin(admin.ModelAdmin):
+    fields = ('name', 'slug', 'description')
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('slug', 'name')
     inlines = [
@@ -24,6 +25,7 @@ class StoryAdmin(admin.ModelAdmin):
         'brief', 'body', ('terms', 'products'), 'trash')
     prepopulated_fields = {"slug": ("title",)}
     list_display = ('slug', 'title', 'status', 'publish_date')
+    filter_horizontal = ('terms',)
     inlines = [
         StoryMetaInline,
     ]
@@ -31,6 +33,7 @@ admin.site.register(Story, StoryAdmin)
 
 
 class TaxAdmin(admin.ModelAdmin):
+    fields = ('name', 'slug')
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('slug', 'name')
 admin.site.register(Taxonomy, TaxAdmin)
@@ -41,6 +44,8 @@ class TermMetaInline(admin.TabularInline):
 
 
 class TermAdmin(admin.ModelAdmin):
+    fields = ('name', 'slug', ('status', 'taxonomy'), 'brief',
+            'body', 'products')
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('name', 'slug', 'taxonomy')
     list_filter = ('taxonomy', 'status')

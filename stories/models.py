@@ -9,12 +9,12 @@ from django.dispatch import receiver
 from newsapps.db.models import SluggedModel
 
 STORY_STATUS_CHOICES = (
-    ("published", "Published"),
-    ("scheduled", "Scheduled"),
     ("draft",     "Draft"),
     ("submit",    "Ready for edit"),
-    ("edited",    "Edited"),
     ("review",    "Needs review"),
+    ("edited",    "Edited"),
+    ("scheduled", "Scheduled"),
+    ("published", "Published"),
 )
 
 STORY_TYPE_CHOICES = (
@@ -28,20 +28,31 @@ TERM_STATUS_CHOICES = (
 
 
 class ModelMeta(models.Model):
-    key = models.SlugField()
-    value = models.TextField()
+    """
+    Abstract model for creating a meta-data model. Meta-data are totally
+    arbitrary bits of text or code that describes the model in some way.
+    """
+    key = models.SlugField(
+            help_text="The ID name of this bit of data. Should be only "
+            "lowercase numbers and letters, dashes or underscores. No spaces.")
+    value = models.TextField(
+            help_text="The value, data or code for this item")
 
     def __unicode__(self):
         return unicode(self.value)
 
     class Meta:
         abstract = True
-        verbose_name = "item"
 
 
 class Product(SluggedModel):
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
+    name = models.CharField(
+            help_text="Name this product. May be publicly visible.",
+            max_length=100)
+    description = models.TextField(
+            help_text="Extra description of this product. May "
+            "be publicly visible.",
+            blank=True)
 
     def __unicode__(self):
         return unicode(self.name)
@@ -51,36 +62,51 @@ class ProductMeta(ModelMeta):
     product = models.ForeignKey(Product, related_name='meta')
 
     class Meta:
-        unique_together = ('product', 'key')
-        verbose_name_plural = "product metadata"
+        verbose_name = "product meta-data"
+        verbose_name_plural = "product meta-data"
 
 
 class Taxonomy(SluggedModel):
-    story_type = models.CharField(max_length=16, default='story')
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        help_text="The name of this system of organization. "
+        "Keep the name simple, like \"Category,\" \"Person\" or \"Issue.\"",
+        max_length=100)
 
     def __unicode__(self):
         return unicode(self.name)
 
     class Meta:
-        unique_together = ('story_type', 'slug')
         verbose_name_plural = 'taxonomies'
 
 
 class Term(SluggedModel):
     taxonomy = models.ForeignKey(Taxonomy, related_name='terms')
 
-    name = models.CharField(max_length=200)
-    brief = models.TextField(blank=True)
-    body = models.TextField(blank=True)
+    name = models.CharField(
+            help_text="Name of this term or topic that falls under the chosen "
+            "taxonomy or system of organization. This will appear to "
+            "the public, so write something nice, like \"Bugs Bunny,\" "
+            "\"Fire retardants\" or \"Elections 2012.\"",
+            max_length=200)
+    brief = models.TextField(
+            help_text="A brief abstract or description. An elevator pitch."
+            "The \"tweet\" for this package of stories.",
+            blank=True)
+    body = models.TextField(
+            help_text="Introduce this topic, issue, person.", blank=True)
 
-    status = models.CharField(max_length=16,
+    status = models.CharField(
+            help_text="Is this term or topic ready for public consumption? "
+            "This has no effect on the published status of stories.",
+            max_length=16,
             default='public', choices=TERM_STATUS_CHOICES)
 
-    products = models.ManyToManyField(Product, related_name='terms')
+    products = models.ManyToManyField(Product,
+            related_name='terms',
+            help_text="Who is this piece going to?")
 
     def __unicode__(self):
-        return unicode(self.name)
+        return unicode("%s (%s)" % (self.name, self.taxonomy))
 
     class Meta:
         unique_together = ('taxonomy', 'slug')
@@ -92,13 +118,18 @@ class TermMeta(ModelMeta):
 
     class Meta:
         unique_together = ('term', 'key')
-        verbose_name_plural = "term metadata"
+        verbose_name = "term meta-data"
+        verbose_name_plural = "term meta-data"
 
 
 class Story(SluggedModel):
-    type = models.CharField(max_length=16, default='story')
+    type = models.CharField(
+            help_text="Not sure what this is for yet...",
+            max_length=16, default='story')
 
-    status = models.CharField(max_length=16,
+    status = models.CharField(
+            help_text="Is this ready for public consumption?",
+            max_length=16,
             default='draft', choices=STORY_STATUS_CHOICES)
 
     title = models.TextField(blank=True)
@@ -106,12 +137,21 @@ class Story(SluggedModel):
     body = models.TextField(blank=True)
     publish_date = models.DateTimeField(default=now())
 
-    trash = models.BooleanField(default=False)
+    trash = models.BooleanField(
+            help_text="Mark this story for deletion.",
+            default=False)
     create_date = models.DateTimeField(auto_now_add=True)
 
-    products = models.ManyToManyField(Product, related_name='stories')
+    products = models.ManyToManyField(
+            Product,
+            related_name='stories',
+            help_text="Who is this piece going to?")
 
-    terms = models.ManyToManyField(Term, related_name='terms')
+    terms = models.ManyToManyField(
+            Term,
+            related_name='terms',
+            help_text="Which terms or topics should this story be "
+            "associated with?")
 
     def __unicode__(self):
         return unicode(self.title)
@@ -127,21 +167,13 @@ class Story(SluggedModel):
         verbose_name_plural = 'stories'
 
 
-# Story post save signal
-#@receiver(post_save, sender=Story)
-#def story_post_save(sender, **kwargs):
-    #instance = kwargs['instance']
-    ## if the story doesn't have a site, add the current
-    #if instance.sites.count() == 0:
-        #instance.sites.add(Site.objects.get_current())
-
-
 class StoryMeta(ModelMeta):
     story = models.ForeignKey(Story, related_name='meta')
 
     class Meta:
         unique_together = ('story', 'key')
-        verbose_name_plural = "story metadata"
+        verbose_name = "story meta-data"
+        verbose_name_plural = "story meta-data"
 
 
 # Setup auto API key generation

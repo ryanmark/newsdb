@@ -155,10 +155,10 @@ class StoryResourceTest(ResourceTestCase):
         super(StoryResourceTest, self).setUp()
 
         # Create a user.
-        self.username = 'admin'
+        self.username = 'bobbytables'
         self.password = 'pass'
         self.user = User.objects.create_user(
-                self.username, 'admin@example.com', self.password)
+                self.username, 'btables@example.com', self.password)
         self.user.is_superuser = True
         self.user.save()
 
