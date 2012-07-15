@@ -1,6 +1,11 @@
--e git+https://github.com/django/django.git@1.3#egg=django
-fabric==0.9.4
+Django==1.4
+-e git+ssh://git@tribune.unfuddle.com/tribune/newsapps.git#egg=newsapps
+Fabric==1.4.2
+django-reversion==1.6.1
+django-tastypie==0.9.12-alpha
+Backbone-tastypie==1.0
 geopy
-django-debug-toolbar
-psycopg2
-python-memcached
+ipython
+newsapps
+psycopg2==2.4.5
+readline
