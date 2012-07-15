@@ -2,7 +2,7 @@ Django==1.4
 -e git+ssh://git@tribune.unfuddle.com/tribune/newsapps.git#egg=newsapps
 Fabric==1.4.2
 django-reversion==1.6.1
--e git+https://github.com/PaulUithol/backbone-tastypie.git#egg=django-tastypie
+django-tastypie
 -e git+https://github.com/PaulUithol/backbone-tastypie.git#egg=Backbone-tastypie
 geopy
 psycopg2==2.4.5
