@@ -102,10 +102,10 @@ class TaxonomyTest(TestCase):
 
         self.assertEqual('category', unicode(self.tax.slug))
 
-        self.assertEqual('Real Estate', unicode(self.terms[0]))
+        self.assertEqual('Real Estate (Category)', unicode(self.terms[0]))
         self.assertEqual('real-estate', unicode(self.terms[0].slug))
 
-        self.assertEqual('News', unicode(self.terms[1]))
+        self.assertEqual('News (Category)', unicode(self.terms[1]))
         self.assertEqual('news', unicode(self.terms[1].slug))
 
         self.assertEqual('Category',
@@ -119,10 +119,10 @@ class TaxonomyTest(TestCase):
 
         story.terms = self.terms
 
-        self.assertEqual('Real Estate', unicode(story.terms.all()[0]))
+        self.assertEqual('Real Estate (Category)', unicode(story.terms.all()[0]))
         self.assertEqual('real-estate', unicode(story.terms.all()[0].slug))
 
-        self.assertEqual('News', unicode(story.terms.all()[1]))
+        self.assertEqual('News (Category)', unicode(story.terms.all()[1]))
         self.assertEqual('news', unicode(story.terms.all()[1].slug))
 
 
@@ -204,8 +204,8 @@ class StoryResourceTest(ResourceTestCase):
             #'user': '/api/v1/user/{0}/'.format(self.user.pk),
             u'title': u'Lorem Ipsum',
             u'slug': u'lorem-ipsum',
-            u'create_date': unicode(serializer.format_datetime(self.story.create_date)),
             u'publish_date': unicode(serializer.format_datetime(self.story.publish_date)),
+            u'update_date': unicode(serializer.format_datetime(self.story.update_date)),
             u'body': u'This is a test story',
             u'brief': '',
             u'status': u'draft',
@@ -215,7 +215,6 @@ class StoryResourceTest(ResourceTestCase):
                 {u'key': u'permalink', u'value': u'http://www.example.com/story/lorem-ipsum'},
             ],
             u'type': u'story',
-            u'trash': False,
             u'resource_uri': u'/api/v1/story/{0}/'.format(self.story.pk)
         }
 
@@ -232,9 +231,9 @@ class StoryResourceTest(ResourceTestCase):
 
         # We use ``assertKeys`` here to just verify the keys, not all the data.
         self.assertKeys(self.deserialize(resp),
-                ['body', 'brief', 'create_date', 'id', 'publish_date',
+                ['body', 'brief', 'id', 'publish_date', 'update_date',
                 'resource_uri', 'slug', 'status', 'terms', 'title',
-                'trash', 'type', 'meta'])
+                'type', 'meta'])
         self.assertEqual(self.deserialize(resp)['title'], 'Lorem Ipsum')
 
     def test_post_list_unauthenticated(self):
@@ -269,7 +268,7 @@ class StoryResourceTest(ResourceTestCase):
         new_data['title'] = 'Updated: Lorem Ipsum'
 
         # Tastypie thinks this is in the local timezone if there no Z...
-        new_data['create_date'] = '2012-05-01T20:06:12Z'
+        new_data['update_date'] = '2012-05-01T20:06:12Z'
 
         self.assertEqual(Story.objects.count(), 1)
 
@@ -283,9 +282,9 @@ class StoryResourceTest(ResourceTestCase):
         # Check for updated data.
         self.assertEqual(Story.objects.get(pk=1).title, 'Updated: Lorem Ipsum')
         self.assertEqual(Story.objects.get(pk=1).slug, 'lorem-ipsum')
-        self.assertEqual(
-                Story.objects.get(pk=1).create_date,
-                datetime.datetime(2012, 5, 1, 20, 6, 12, tzinfo=utc))
+        #self.assertEqual(
+                #Story.objects.get(pk=1).update_date,
+                #datetime.datetime(2012, 5, 1, 20, 6, 12, tzinfo=utc))
 
     def test_delete_detail_unauthenticated(self):
         self.assertHttpUnauthorized(

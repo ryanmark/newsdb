@@ -6,6 +6,8 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+import reversion
+
 from newsapps.db.models import SluggedModel
 
 STORY_STATUS_CHOICES = (
@@ -108,6 +110,9 @@ class Term(SluggedModel):
     def __unicode__(self):
         return unicode("%s (%s)" % (self.name, self.taxonomy))
 
+    def get_slug_text(self):
+        return unicode("%s" % self.name)
+
     class Meta:
         unique_together = ('taxonomy', 'slug')
         verbose_name_plural = 'terms'
@@ -120,6 +125,9 @@ class TermMeta(ModelMeta):
         unique_together = ('term', 'key')
         verbose_name = "term meta-data"
         verbose_name_plural = "term meta-data"
+
+reversion.register(Term, follow=["meta"])
+reversion.register(TermMeta)
 
 
 class Story(SluggedModel):
@@ -135,12 +143,9 @@ class Story(SluggedModel):
     title = models.TextField(blank=True)
     brief = models.TextField(blank=True)
     body = models.TextField(blank=True)
-    publish_date = models.DateTimeField(default=now())
 
-    trash = models.BooleanField(
-            help_text="Mark this story for deletion.",
-            default=False)
-    create_date = models.DateTimeField(auto_now_add=True)
+    publish_date = models.DateTimeField(default=now())
+    update_date = models.DateTimeField(auto_now=True)
 
     products = models.ManyToManyField(
             Product,
@@ -174,6 +179,9 @@ class StoryMeta(ModelMeta):
         unique_together = ('story', 'key')
         verbose_name = "story meta-data"
         verbose_name_plural = "story meta-data"
+
+reversion.register(Story, follow=['meta'])
+reversion.register(StoryMeta)
 
 
 # Setup auto API key generation

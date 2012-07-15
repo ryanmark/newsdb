@@ -126,6 +126,8 @@ INSTALLED_APPS = (
      'django.contrib.admindocs',
 
      'tastypie',
+     'reversion',
+     'backbone_tastypie',
 
      'stories',
 )
