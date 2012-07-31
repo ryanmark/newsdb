@@ -1,2 +1,4 @@
 old-project
 data/*.db
+venv
+*.pyc
