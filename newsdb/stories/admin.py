@@ -1,5 +1,6 @@
 from django.contrib import admin
-from stories.models import *
+from newsdb.stories.models import Product, ProductMeta, Story, StoryMeta
+from newsdb.stories.models import TermMeta, Taxonomy, Term
 
 import reversion
 
@@ -24,7 +25,7 @@ class StoryMetaInline(admin.TabularInline):
 
 class StoryAdmin(reversion.VersionAdmin):
     fields = ('title', 'slug', ('status', 'publish_date'),
-        'brief', 'body', ('terms', 'products'))
+              'brief', 'body', ('terms', 'products'))
     prepopulated_fields = {"slug": ("title",)}
     list_display = ('slug', 'title', 'status', 'publish_date')
     filter_horizontal = ('terms',)
@@ -47,7 +48,7 @@ class TermMetaInline(admin.TabularInline):
 
 class TermAdmin(reversion.VersionAdmin):
     fields = ('name', 'slug', ('status', 'taxonomy'), 'brief',
-            'body', 'products')
+              'body', 'products')
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('name', 'slug', 'taxonomy')
     list_filter = ('taxonomy', 'status')

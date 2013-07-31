@@ -1,8 +1,6 @@
-Django==1.4
--e git+ssh://git@tribune.unfuddle.com/tribune/newsapps.git#egg=newsapps
-Fabric==1.4.2
-django-reversion==1.6.1
--e git+https://github.com/toastdriven/django-tastypie#egg=django-tastypie
--e git+https://github.com/PaulUithol/backbone-tastypie.git#egg=Backbone-tastypie
-geopy
-psycopg2==2.4.5
+Django==1.5.1
+Markdown==2.3.1
+django-filter==0.6
+django-reversion==1.7.1
+djangorestframework==2.3.6
+wsgiref==0.1.2
