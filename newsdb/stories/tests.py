@@ -5,16 +5,19 @@ Tests for the NewsDB Stories App
 from django.test import TestCase
 from newsdb.stories.models import Story, Taxonomy
 
+from django.test.client import Client
+c = Client()
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 
 class StoryTest(TestCase):
+    urls = 'newsdb.stories.urls'
+
     def setUp(self):
         self.story = Story.objects.create(
-            title='Lorem Ipsum',
-            body='This is a test story'
+            title='Lorem Ipsum'
         )
         self.meta = [
             self.story.meta.create(
@@ -24,7 +27,7 @@ class StoryTest(TestCase):
                 key='permalink',
                 value='http://www.example.com/story/%s' % self.story.slug),
         ]
-        self.product = self.story.products.create(name="Chicago Tribune")
+        self.product = self.story.publications.create(name="Chicago Tribune")
 
     def test_story(self):
         """
@@ -61,7 +64,7 @@ class StoryTest(TestCase):
 
         # Does get_absolute_url work?
         self.assertEqual(
-            'http://www.example.com/story/lorem-ipsum',
+            '/stories/lorem-ipsum',
             self.story.get_absolute_url())
 
         # Did the product get associated?
@@ -71,7 +74,7 @@ class StoryTest(TestCase):
         # When a permalink is not present, we should get a generated url
         self.story.meta.get(key='permalink').delete()
 
-        self.assertEqual('', self.story.get_absolute_url())
+        self.assertEqual('/stories/lorem-ipsum', self.story.get_absolute_url())
 
 
 class TaxonomyTest(TestCase):
@@ -115,8 +118,7 @@ class TaxonomyTest(TestCase):
 
     def test_story_term(self):
         story = Story.objects.create(
-            title='Lorem Ipsum',
-            body='This is a test story'
+            title='Lorem Ipsum'
         )
 
         story.terms = self.terms
@@ -131,6 +133,19 @@ class TaxonomyTest(TestCase):
         self.assertEqual(
             'news', unicode(story.terms.all()[1].slug))
 
+
+class StoryApiTest(TestCase):
+    #fixtures = ['test_entries.json']
+    urls = 'newsdb.stories.urls'
+
+    def setUp(self):
+        pass
+
+    def test_create_story(self):
+        response = c.post('/stories/', {'slug': 'foo'})
+
+        self.assertEqual(200, response.status_code)
+        pp.pprint(response.data)
 
 #class ApiTest(ResourceTestCase):
     #def setUp(self):

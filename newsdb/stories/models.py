@@ -1,6 +1,11 @@
 from django.db import models
 from django.utils.timezone import now
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+
 import reversion
+from meta.models import ModelMeta
+from sortedm2m.fields import SortedManyToManyField
 
 from newsdb.models import SluggedModel
 
@@ -23,25 +28,7 @@ TERM_STATUS_CHOICES = (
 )
 
 
-class ModelMeta(models.Model):
-    """
-    Abstract model for creating a meta-data model. Meta-data are totally
-    arbitrary bits of text or code that describes the model in some way.
-    """
-    key = models.SlugField(
-        help_text="The ID name of this bit of data. Should be only "
-        "lowercase numbers and letters, dashes or underscores. No spaces.")
-    value = models.TextField(
-        help_text="The value, data or code for this item")
-
-    def __unicode__(self):
-        return unicode(self.value)
-
-    class Meta:
-        abstract = True
-
-
-class Product(SluggedModel):
+class Publication(SluggedModel):
     name = models.CharField(
         help_text="Name this product. May be publicly visible.",
         max_length=100)
@@ -49,13 +36,14 @@ class Product(SluggedModel):
         help_text="Extra description of this product. May "
         "be publicly visible.",
         blank=True)
+    sites = models.ManyToManyField(Site)
 
     def __unicode__(self):
         return unicode(self.name)
 
 
-class ProductMeta(ModelMeta):
-    product = models.ForeignKey(Product, related_name='meta')
+class PublicationMeta(ModelMeta):
+    publication = models.ForeignKey(Publication, related_name='meta')
 
     class Meta:
         verbose_name = "product meta-data"
@@ -97,8 +85,8 @@ class Term(SluggedModel):
         max_length=16,
         default='public', choices=TERM_STATUS_CHOICES)
 
-    products = models.ManyToManyField(
-        Product,
+    publications = models.ManyToManyField(
+        Publication,
         related_name='terms',
         help_text="Who is this piece going to?")
 
@@ -126,10 +114,7 @@ reversion.register(TermMeta)
 
 
 class Story(SluggedModel):
-    type = models.CharField(
-        help_text="Not sure what this is for yet...",
-        max_length=16, default='story')
-
+    type = models.CharField(max_length="16", default="story")
     status = models.CharField(
         help_text="Is this ready for public consumption?",
         max_length=16,
@@ -137,13 +122,12 @@ class Story(SluggedModel):
 
     title = models.TextField(blank=True)
     brief = models.TextField(blank=True)
-    body = models.TextField(blank=True)
 
     publish_date = models.DateTimeField(default=now())
     update_date = models.DateTimeField(auto_now=True)
 
-    products = models.ManyToManyField(
-        Product,
+    publications = models.ManyToManyField(
+        Publication,
         related_name='stories',
         help_text="Who is this piece going to?")
 
@@ -157,10 +141,7 @@ class Story(SluggedModel):
         return unicode(self.title)
 
     def get_absolute_url(self):
-        try:
-            return unicode(self.meta.get(key='permalink'))
-        except StoryMeta.DoesNotExist:
-            return ""
+        return reverse('story-detail', args=[self.slug])
 
     class Meta:
         unique_together = ('type', 'slug')
@@ -179,13 +160,24 @@ reversion.register(Story, follow=['meta'])
 reversion.register(StoryMeta)
 
 
-# Setup auto API key generation
-from django.contrib.auth.models import User
+STORY_ASSET_TYPE_CHOICES = (
+    ('graf', 'Paragraph'),
+    ('hed', 'Headline'),
+    ('section_hed', 'Section headline'),
+    ('embed', 'Embed'),
+    ('img', 'Image'),
+    ('data', 'Data'),
+)
 
 
-class UserMeta(ModelMeta):
-    user = models.ForeignKey(User, related_name='meta')
+class StoryAsset(SluggedModel):
+    type = models.CharField(max_length=16, choices=STORY_ASSET_TYPE_CHOICES)
+    url = models.URLField(max_length=255, blank=True, null=True)
+    body = models.TextField(blank=True, null=True)
+    story = SortedManyToManyField(Story)
 
     class Meta:
-        unique_together = ('user', 'key')
-        verbose_name_plural = "user metadata"
+        verbose_name = "asset"
+        verbose_name_plural = "assets"
+
+reversion.register(StoryAsset)

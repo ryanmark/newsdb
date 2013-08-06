@@ -1,22 +1,22 @@
 from django.contrib import admin
-from newsdb.stories.models import Product, ProductMeta, Story, StoryMeta
+from newsdb.stories.models import Publication, PublicationMeta, Story, StoryMeta
 from newsdb.stories.models import TermMeta, Taxonomy, Term
 
 import reversion
 
 
-class ProductMetaInline(admin.TabularInline):
-    model = ProductMeta
+class PublicationMetaInline(admin.TabularInline):
+    model = PublicationMeta
 
 
-class ProductAdmin(admin.ModelAdmin):
+class PublicationAdmin(admin.ModelAdmin):
     fields = ('name', 'slug', 'description')
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('slug', 'name')
     inlines = [
-        ProductMetaInline,
+        PublicationMetaInline,
     ]
-admin.site.register(Product, ProductAdmin)
+admin.site.register(Publication, PublicationAdmin)
 
 
 class StoryMetaInline(admin.TabularInline):
@@ -25,7 +25,7 @@ class StoryMetaInline(admin.TabularInline):
 
 class StoryAdmin(reversion.VersionAdmin):
     fields = ('title', 'slug', ('status', 'publish_date'),
-              'brief', 'body', ('terms', 'products'))
+              'brief', 'body', ('terms', 'publications'))
     prepopulated_fields = {"slug": ("title",)}
     list_display = ('slug', 'title', 'status', 'publish_date')
     filter_horizontal = ('terms',)
@@ -48,7 +48,7 @@ class TermMetaInline(admin.TabularInline):
 
 class TermAdmin(reversion.VersionAdmin):
     fields = ('name', 'slug', ('status', 'taxonomy'), 'brief',
-              'body', 'products')
+              'body', 'publications')
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('name', 'slug', 'taxonomy')
     list_filter = ('taxonomy', 'status')

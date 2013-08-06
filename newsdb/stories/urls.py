@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, url
-from . import api
+from . import views
 
 urlpatterns = patterns('',
-    url(r'^hello', api.hello),
-    url(r'^stories/', api.stories)
+    url(r'^hello', views.hello),
+    url(r'^stories/', views.stories, name="stories"),
+    url(r'^stories/(?P<slug>[^/]+)$', views.story_detail, name="story-detail")
 )
