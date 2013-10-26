@@ -5,7 +5,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^v1/', include('newsdb.stories.urls')),
+    url(r'^pieces/', include('newsdb.pieces.urls')),
+    url(r'^taxonomy/', include('newsdb.taxonomy.urls')),
     url(r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework'))
 )

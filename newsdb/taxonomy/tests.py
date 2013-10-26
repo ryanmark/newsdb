@@ -3,78 +3,13 @@ Tests for the NewsDB Stories App
 """
 
 from django.test import TestCase
-from newsdb.stories.models import Story, Taxonomy
+from .models import Taxonomy
 
 from django.test.client import Client
 c = Client()
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
-
-
-class StoryTest(TestCase):
-    urls = 'newsdb.stories.urls'
-
-    def setUp(self):
-        self.story = Story.objects.create(
-            title='Lorem Ipsum'
-        )
-        self.meta = [
-            self.story.meta.create(
-                key='seo_description',
-                value='Lorem ipsum test story'),
-            self.story.meta.create(
-                key='permalink',
-                value='http://www.example.com/story/%s' % self.story.slug),
-        ]
-        self.product = self.story.publications.create(name="Chicago Tribune")
-
-    def test_story(self):
-        """
-        Test basic story creation and access
-        """
-
-        # Did the model get created?
-        self.assertEqual('Lorem Ipsum', unicode(self.story))
-
-        # Did the slug get generated?
-        self.assertEqual('lorem-ipsum', unicode(self.story.slug))
-
-        # Did the default site get associated?
-        #self.assertEqual(
-            #Site.objects.get_current(), self.story.sites.all()[0])
-
-        # Did the meta get saved and associated correctly?
-        self.assertEqual(
-            'Lorem ipsum test story',
-            unicode(self.meta[0]))
-        self.assertEqual(
-            'http://www.example.com/story/%s' % self.story.slug,
-            unicode(self.meta[1]))
-
-        # Can we retrieve our story?
-        self.assertEqual(
-            'Lorem Ipsum',
-            unicode(Story.objects.get(slug='lorem-ipsum')))
-
-        # Can we retrieve our permalink?
-        self.assertEqual(
-            'http://www.example.com/story/lorem-ipsum',
-            unicode(self.story.meta.get(key='permalink')))
-
-        # Does get_absolute_url work?
-        self.assertEqual(
-            '/stories/lorem-ipsum',
-            self.story.get_absolute_url())
-
-        # Did the product get associated?
-        self.assertEqual('Chicago Tribune', unicode(self.product))
-
-    def test_url(self):
-        # When a permalink is not present, we should get a generated url
-        self.story.meta.get(key='permalink').delete()
-
-        self.assertEqual('/stories/lorem-ipsum', self.story.get_absolute_url())
 
 
 class TaxonomyTest(TestCase):
@@ -116,36 +51,19 @@ class TaxonomyTest(TestCase):
         self.assertEqual(
             'Category', unicode(Taxonomy.objects.get(slug='category')))
 
-    def test_story_term(self):
-        story = Story.objects.create(
-            title='Lorem Ipsum'
-        )
 
-        story.terms = self.terms
+#class StoryApiTest(TestCase):
+    ##fixtures = ['test_entries.json']
+    #urls = 'newsdb.stories.urls'
 
-        self.assertEqual(
-            'Real Estate (Category)', unicode(story.terms.all()[0]))
-        self.assertEqual(
-            'real-estate', unicode(story.terms.all()[0].slug))
+    #def setUp(self):
+        #pass
 
-        self.assertEqual(
-            'News (Category)', unicode(story.terms.all()[1]))
-        self.assertEqual(
-            'news', unicode(story.terms.all()[1].slug))
+    #def test_create_story(self):
+        #response = c.post('/stories/', {'slug': 'foo'})
 
-
-class StoryApiTest(TestCase):
-    #fixtures = ['test_entries.json']
-    urls = 'newsdb.stories.urls'
-
-    def setUp(self):
-        pass
-
-    def test_create_story(self):
-        response = c.post('/stories/', {'slug': 'foo'})
-
-        self.assertEqual(200, response.status_code)
-        pp.pprint(response.data)
+        #self.assertEqual(200, response.status_code)
+        #pp.pprint(response.data)
 
 #class ApiTest(ResourceTestCase):
     #def setUp(self):
