@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 #from rest_framework import authentication, permissions
 from rest_framework.decorators import api_view
-from .models import Story
-from .serializers import StorySerializer
+from .models import Piece
+from .serializers import PieceSerializer
 
 
 @api_view(['GET'])
@@ -11,26 +11,24 @@ def hello(request):
 
 
 @api_view(['GET', 'POST'])
-def stories(request):
+def pieces(request):
     if request.method == 'GET':
-        stories = Story.objects.all()
-        serializer = StorySerializer(
-            stories, many=True, context={'request': request})
+        pieces = Piece.objects.all()
+        serializer = PieceSerializer(
+            pieces, many=True, context={'request': request})
         return Response(serializer.data)
 
     if request.method == 'POST':
-        story_data = StorySerializer(data=request.DATA)
-        print("valid" if story_data.is_valid() else "bad")
-        print(story_data.errors)
+        piece_data = PieceSerializer(data=request.DATA)
+        print("valid" if piece_data.is_valid() else "bad")
+        print(piece_data.errors)
 
-        story = story_data.object
-        story.save()
+        piece = piece_data.object
+        piece.save()
 
-        serializer = StorySerializer(story, context={'request': request})
+        serializer = PieceSerializer(piece, context={'request': request})
         return Response(serializer.data)
 
 
-def story_detail(request):
+def piece_detail(request):
     pass
-
-

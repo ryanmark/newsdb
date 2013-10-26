@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Story
+from .models import Piece
 
 
 class ModelMetaSerializer(serializers.ModelSerializer):
@@ -50,9 +50,9 @@ class ModelMetaSerializer(serializers.ModelSerializer):
         return field_data, meta_data
 
 
-class StorySerializer(ModelMetaSerializer):
-    exclude_fields = ('id', 'meta', 'publications', 'terms')
+class PieceSerializer(serializers.ModelSerializer):
+    exclude_fields = ('id',)
 
     class Meta:
-        model = Story
+        model = Piece
         lookup_field = 'slug'

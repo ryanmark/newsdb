@@ -3,6 +3,6 @@ from . import views
 
 urlpatterns = patterns('',
     url(r'^hello', views.hello),
-    url(r'^stories/', views.stories, name="stories"),
-    url(r'^stories/(?P<slug>[^/]+)$', views.story_detail, name="story-detail")
+    url(r'^pieces/', views.pieces, name="pieces"),
+    url(r'^pieces/(?P<slug>[^/]+)$', views.piece_detail, name="piece-detail")
 )

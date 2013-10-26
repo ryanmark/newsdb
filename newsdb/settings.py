@@ -126,7 +126,7 @@ INSTALLED_APPS = (
 
     'reversion',
 
-    'meta',
+    'metamodel',
     'newsdb.stories',
     'rest_framework',
 )
