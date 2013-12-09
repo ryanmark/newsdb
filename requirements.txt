@@ -1,6 +1,9 @@
 Django==1.5
 Markdown==2.3.1
+-e git+https://github.com/ecometrica/django-dbarray.git@a2773b778509ec1040de5eb21d021a1ee9a41977#egg=django_dbarray-master
 django-filter==0.6
+django-hstore==1.1.1
 django-reversion==1.7.1
 djangorestframework==2.3.6
+psycopg2==2.5.1
 wsgiref==0.1.2

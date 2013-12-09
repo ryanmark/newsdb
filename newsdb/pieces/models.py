@@ -1,11 +1,12 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 
+from django_hstore import hstore
+
 import reversion
-from metamodel.models import ModelMeta
 #from sortedm2m.fields import SortedManyToManyField
 
-from newsdb.models import SluggedModel
+from newsdb.models import SluggedModel, BodyField
 from newsdb.publications.models import Publication
 from newsdb.taxonomy.models import Term
 
@@ -38,10 +39,15 @@ class Piece(SluggedModel):
 
     title = models.TextField(blank=True)
     brief = models.TextField(blank=True)
-    body = models.TextField(blank=True)
+    text = models.TextField(blank=True)
+    body = BodyField()
+
+    data = hstore.DictionaryField(db_index=True)
+    objects = hstore.HStoreManager()
 
     publish_date = models.DateTimeField(null=True)
     update_date = models.DateTimeField(auto_now=True)
+    create_date = models.DateTimeField(auto_now_add=True)
 
     publications = models.ManyToManyField(
         Publication,
@@ -63,13 +69,3 @@ class Piece(SluggedModel):
         unique_together = ('type', 'slug')
         verbose_name_plural = 'pieces'
 reversion.register(Piece, follow=['meta'])
-
-
-class PieceMeta(ModelMeta):
-    piece = models.ForeignKey(Piece, related_name='meta')
-
-    class Meta:
-        unique_together = ('piece', 'key')
-        verbose_name = "story meta-data"
-        verbose_name_plural = "story meta-data"
-reversion.register(PieceMeta)

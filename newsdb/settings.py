@@ -19,11 +19,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'data/dev.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
+        'ENGINE': 'django_hstore.postgresql_psycopg2',
+        'NAME': 'newsdb',
+        'USER': 'newsdb',
+        'PASSWORD': '950eost8riuSF$()(WHFEOiskj',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }

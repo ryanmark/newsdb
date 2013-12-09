@@ -1,4 +1,5 @@
-from django.contrib.gis.db import models
+from django.db import models
+import dbarray
 import random
 
 
@@ -107,3 +108,19 @@ class DateSluggedModel(SluggedModel):
         return "-".join(
             self.slugdate.strftime("%m%d%y"),
             super(DateSluggedModel, self).unique_slug())
+
+
+class ParagraphField(models.Field):
+    description = "An atom of storytelling."
+
+    def db_type(self, *args, **kwargs):
+        print "dbtype!"
+        super(ParagraphField, self).db_type(*args, **kwargs)
+
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 104
+        super(ParagraphField, self).__init__(*args, **kwargs)
+
+
+class BodyField(dbarray.ArrayFieldBase, ParagraphField):
+    __metaclass__ = dbarray.ArrayFieldMetaclass
